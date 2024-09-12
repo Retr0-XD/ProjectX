@@ -289,7 +289,7 @@ async function Xcronjob() {
     const facebookPosts = await fetchFacebookPosts();
     const imgurMeme = await fetchImgurMeme();
 
-    const tags = ['Reddit', 'Facebook', 'Imgur', 'Trending'];
+    const tags = ['#dankmemes','#memes','#meme','#memesdaily','#funnymemes','#funny',' #offensivememes','#instagram',' #funnyshit'];
     const results = [];
 
 
