@@ -11,17 +11,6 @@
         "src": "/(.*)",
         "dest": "/index.js"
       }
-    ],
-    "env": {
-      "PORT": "3000",
-      "CONNECTION_URI": "@connection_uri",
-      "CLIENT_ID": "@client_id",
-      "CLIENT_SECRET": "@client_secret",
-      "REDDIT_USERNAME": "@reddit_username",
-      "REDDIT_PASSWORD": "@reddit_password",
-      "FACEBOOK_ACCESS_TOKEN": "@facebook_access_token",
-      "IMGUR_CLIENT_ID": "@imgur_client_id",
-      "INSTAGRAM_SECRET": "@instagram_secret"
-    }
+    ]
   }
   
