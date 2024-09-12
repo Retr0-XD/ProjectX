@@ -1,5 +1,5 @@
 [build]
-  functions = "./cronjob.js"   # Location of your serverless functions
+  functions = "./functions"   # Location of your serverless functions
 
 
 [schedule.functions.fetch-and-post]
