@@ -1,8 +1,7 @@
 const { Xcronjob } = require('../index');
 
 exports.handler = async (event, context) => {
-  context.callbackWaitsForEmptyEventLoop = false; // Ensure Netlify function doesn't wait for empty event loop
-
+  context.callbackWaitsForEmptyEventLoop = false; 
   try {
     // Await the execution of Xcronjob
     const results = await Xcronjob();
@@ -10,7 +9,7 @@ exports.handler = async (event, context) => {
     // Return successful results as response
     return {
       statusCode: 200,
-      body: JSON.stringify(results.filter(Boolean)), // Only return successful posts
+      body: JSON.stringify(results.filter(Boolean)), 
     };
   } catch (error) {
     console.error('Error in cron job:', error.message);

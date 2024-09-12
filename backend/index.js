@@ -9,7 +9,7 @@ app.use(express.json());
 const fs = require('fs');
 const path = require('path');
 
-// MongoDB schema for Reddit posts
+
 const redditPostSchema = new mongoose.Schema({
   subreddit: String,
   postId: String,
@@ -19,7 +19,7 @@ const redditPostSchema = new mongoose.Schema({
 
 const RedditPost = mongoose.model('RedditPost', redditPostSchema);
 
-// MongoDB schema for Facebook posts
+
 const facebookPostSchema = new mongoose.Schema({
   postId: String,
   message: String,
@@ -29,7 +29,7 @@ const facebookPostSchema = new mongoose.Schema({
 
 const FacebookPost = mongoose.model('FacebookPost', facebookPostSchema);
 
-// MongoDB schema for Imgur posts
+
 const imgurPostSchema = new mongoose.Schema({
   postId: String,
   title: String,
@@ -39,7 +39,7 @@ const imgurPostSchema = new mongoose.Schema({
 
 const ImgurPost = mongoose.model('ImgurPost', imgurPostSchema);
 
-// MongoDB schema for rejected posts
+
 const rejectedPostSchema = new mongoose.Schema({
   postId: String,
   platform: String,
@@ -49,12 +49,12 @@ const rejectedPostSchema = new mongoose.Schema({
 
 const RejectedPost = mongoose.model('RejectedPost', rejectedPostSchema);
 
-// Connect to MongoDB
+
 mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.log('MongoDB connection error:', err.message));
 
-// Function to check if a post has already been processed or rejected
+
 async function isPostProcessedOrRejected(postId, platform) {
   try {
     const processed = await RedditPost.findOne({ postId }) || await FacebookPost.findOne({ postId }) || await ImgurPost.findOne({ postId });
@@ -66,7 +66,7 @@ async function isPostProcessedOrRejected(postId, platform) {
   }
 }
 
-// Function to fetch Reddit posts (images only)
+
 async function fetchRedditPosts() {
   console.log('Attempting to fetch Reddit posts...');
   try {
@@ -85,7 +85,7 @@ async function fetchRedditPosts() {
     for (const subredditName of subredditNames) {
       const subredditPosts = await r.getTop(subredditName, { time: 'day', limit: 2 });
       for (const post of subredditPosts) {
-        if (post.url && !post.is_video && /\.(jpg|jpeg|png|bmp|gif)$/i.test(post.url)) { // Only handle image posts
+        if (post.url && !post.is_video && /\.(jpg|jpeg|png|bmp|gif)$/i.test(post.url)) { 
           const redditPostUrl = `https://reddit.com${post.permalink}`;
           if (!(await isPostProcessedOrRejected(post.id, 'Reddit'))) {
             posts.push({
@@ -104,14 +104,14 @@ async function fetchRedditPosts() {
     }
 
     console.log(`Successfully fetched ${posts.length} Reddit posts.`);
-    return posts.slice(0, 3); // Limit to 3 posts for simplicity
+    return posts.slice(0, 3); 
   } catch (error) {
     console.log('Error fetching Reddit posts:', error.message);
     return [];
   }
 }
 
-// Function to fetch Facebook posts (images only from followed pages)
+
 async function fetchFacebookPosts() {
   console.log('Attempting to fetch Facebook posts...');
   try {
@@ -189,12 +189,11 @@ async function fetchImgurMeme() {
       return null;
     }
 
-    // Loop through memes to find an unprocessed one
     for (const meme of memes) {
       const imageUrl = meme.images[0].link;
       const imageType = meme.images[0].type;
 
-      // Check if the meme's image type is supported and if it's already processed or rejected
+
       if (imageType.startsWith('image/') && !(await isPostProcessedOrRejected(meme.id, 'Imgur'))) {
         console.log(`Fetched Imgur meme: ${meme.title}`);
         return { postId: meme.id, title: meme.title, mediaUrl: imageUrl };
@@ -215,7 +214,7 @@ async function fetchImgurMeme() {
 }
 
 
-// Function to save rejected posts
+
 async function saveRejectedPost(postId, platform, reason) {
   try {
     const rejectedPost = new RejectedPost({ postId, platform, reason, addedAt: new Date() });
@@ -229,12 +228,12 @@ async function saveRejectedPost(postId, platform, reason) {
 
 
 async function postToInstagram(imageUrl, title, platform, tags = []) {
-  // Create the caption using string concatenation
+
   const caption = title + "\nSource: " + platform + "\nTags: " + tags.join(' ');
   const accessToken = process.env.INSTAGRAM_SECRET;
 
   try {
-    // Step 1: Create a media object (photo container) in Instagram
+   
     const mediaResponse = await axios.post(
       `https://graph.instagram.com/v17.0/me/media`,
       {
@@ -247,7 +246,7 @@ async function postToInstagram(imageUrl, title, platform, tags = []) {
     const mediaId = mediaResponse.data.id;
     console.log('Media ID:', mediaId);
 
-    // Step 2: Publish the media object
+  
     const publishResponse = await axios.post(
       `https://graph.instagram.com/v17.0/me/media_publish`,
       {
@@ -281,7 +280,7 @@ async function Xcronjob() {
   console.log('Cron Job: Fetching and posting top Reddit, Facebook, and Imgur memes...');
 
   try {
-    // Ensure MongoDB connection is active
+  
     await connectToDatabase();
 
     const redditPosts = await fetchRedditPosts();
@@ -291,7 +290,7 @@ async function Xcronjob() {
     const tags = ['Reddit', 'Facebook', 'Imgur', 'Trending'];
     const results = [];
 
-    // Post Reddit content to Instagram
+
     for (const post of redditPosts) {
       const result = await postToInstagram(post.mediaUrl, post.title, `r/${post.subreddit}`, tags);
       if (result) {
@@ -301,7 +300,7 @@ async function Xcronjob() {
       results.push(result);
     }
 
-    // Post Facebook content to Instagram
+
     for (const post of facebookPosts) {
       const result = await postToInstagram(post.mediaUrl, post.message || 'Check out this post!', 'Facebook', tags);
       if (result) {
@@ -311,7 +310,7 @@ async function Xcronjob() {
       results.push(result);
     }
 
-    // Post Imgur meme to Instagram
+
     if (imgurMeme) {
       const result = await postToInstagram(imgurMeme.mediaUrl, imgurMeme.title, 'Imgur', tags);
       if (result) {
@@ -321,14 +320,14 @@ async function Xcronjob() {
       results.push(result);
     }
 
-    return results; // Return the results array
+    return results; 
   } catch (error) {
     console.error('Error in cron job:', error.message);
-    throw new Error(error.message); // Throw the error to be handled by the caller
+    throw new Error(error.message); 
   }
 }
 
-// Export the function for external use
+
 exports.Xcronjob = Xcronjob;
 
 app.get('/test-fetch-post', async (req, res) => {
@@ -342,7 +341,7 @@ app.get('/test-fetch-post', async (req, res) => {
     const tags = ['Reddit', 'Facebook', 'Imgur', 'Trending'];
     const results = [];
 
-    // Post Reddit content to Instagram
+
     for (const post of redditPosts) {
       const result = await postToInstagram(post.mediaUrl, post.title, `r/${post.subreddit}`, tags);
       if (result) {
@@ -352,7 +351,7 @@ app.get('/test-fetch-post', async (req, res) => {
       results.push(result);
     }
 
-    // Post Facebook content to Instagram
+
     for (const post of facebookPosts) {
       const result = await postToInstagram(post.mediaUrl, post.message, 'Facebook', tags);
       if (result) {
@@ -362,7 +361,7 @@ app.get('/test-fetch-post', async (req, res) => {
       results.push(result);
     }
 
-    // Post Imgur meme to Instagram
+
     if (imgurMeme) {
       const result = await postToInstagram(imgurMeme.mediaUrl, imgurMeme.title, 'Imgur', tags);
       if (result) {
@@ -372,7 +371,7 @@ app.get('/test-fetch-post', async (req, res) => {
       results.push(result);
     }
 
-    res.status(200).json(results.filter(Boolean)); // Respond with successful posts
+    res.status(200).json(results.filter(Boolean)); 
   } catch (error) {
     console.log('Error in test fetch and post:', error.message);
     res.status(500).json({ error: error.message });
@@ -423,7 +422,7 @@ app.get('/test-fetch-post', async (req, res) => {
 //   timezone: 'Asia/Kolkata', // Set timezone to IST
 // });
 
-// Save Reddit post
+
 async function saveRedditPost(post) {
   try {
     const redditPost = new RedditPost({
@@ -439,7 +438,7 @@ async function saveRedditPost(post) {
   }
 }
 
-// Save Facebook post
+
 async function saveFacebookPost(post) {
   try {
     const facebookPost = new FacebookPost({
@@ -455,7 +454,7 @@ async function saveFacebookPost(post) {
   }
 }
 
-// Save Imgur post
+
 async function saveImgurPost(meme) {
   try {
     const imgurPost = new ImgurPost({
@@ -471,7 +470,7 @@ async function saveImgurPost(meme) {
   }
 }
 
-// Array to store logs
+
 let logData = [];
 
 // Utility function to add a log entry and save it to a file
@@ -489,7 +488,7 @@ function addLogEntry(log) {
   });
 }
 
-// Example of logging an error
+
 function logError(message) {
   const logEntry = {
     message: message,
@@ -498,7 +497,7 @@ function logError(message) {
   addLogEntry(logEntry);
 }
 
-// Example route to fetch logs
+
 app.get('/logs', async (req, res) => {
   try {
     // Read the logs.json file and send it to the frontend
@@ -517,7 +516,7 @@ app.get('/logs', async (req, res) => {
   }
 });
 
-// Fetch all posted Reddit, Facebook, and Imgur posts
+
 app.get('/posts', async (req, res) => {
   try {
     const redditPosts = await RedditPost.find().sort({ addedAt: -1 });
@@ -532,7 +531,7 @@ app.get('/posts', async (req, res) => {
   }
 });
 
-// Fetch all rejected posts
+
 app.get('/rejected-posts', async (req, res) => {
   try {
     const rejectedPosts = await RejectedPost.find().sort({ addedAt: -1 });
