@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build": "npm run build:app && npm run build:lambda",
+    "build:app": "react-scripts build", 
+    "build:lambda": "netlify-lambda build functions" 
   },
   "keywords": [],
   "author": "",
