@@ -1,0 +1,11 @@
+[build]
+  functions = "./cronjob.js"   # Location of your serverless functions
+
+[[plugins]]
+  package = "@netlify/plugin-scheduled-functions"  # Plugin to schedule functions
+
+[schedule.functions.fetch-and-post]
+  cron = "30 1 * * *"  # Cron job set to run at 1:30 AM IST (Asia/Kolkata)
+
+[functions]
+  external_node_modules = ["mongoose", "snoowrap", "axios"]  # External dependencies

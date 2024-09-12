@@ -265,8 +265,71 @@ async function postToInstagram(imageUrl, title, platform, tags = []) {
   }
 }
 
+async function connectToDatabase() {
+  const MONGO_URI = process.env.MONGO_URI;
+  if (!mongoose.connection.readyState) {
+    await mongoose.connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('MongoDB connected');
+  }
+}
 
 
+async function Xcronjob() {
+  console.log('Cron Job: Fetching and posting top Reddit, Facebook, and Imgur memes...');
+
+  try {
+    // Ensure MongoDB connection is active
+    await connectToDatabase();
+
+    const redditPosts = await fetchRedditPosts();
+    const facebookPosts = await fetchFacebookPosts();
+    const imgurMeme = await fetchImgurMeme();
+
+    const tags = ['Reddit', 'Facebook', 'Imgur', 'Trending'];
+    const results = [];
+
+    // Post Reddit content to Instagram
+    for (const post of redditPosts) {
+      const result = await postToInstagram(post.mediaUrl, post.title, `r/${post.subreddit}`, tags);
+      if (result) {
+        const newPost = new RedditPost({ subreddit: post.subreddit, postId: post.postId, mediaUrl: post.mediaUrl, addedAt: new Date() });
+        await newPost.save();
+      }
+      results.push(result);
+    }
+
+    // Post Facebook content to Instagram
+    for (const post of facebookPosts) {
+      const result = await postToInstagram(post.mediaUrl, post.message || 'Check out this post!', 'Facebook', tags);
+      if (result) {
+        const newPost = new FacebookPost({ postId: post.postId, message: post.message, mediaUrl: post.mediaUrl, addedAt: new Date() });
+        await newPost.save();
+      }
+      results.push(result);
+    }
+
+    // Post Imgur meme to Instagram
+    if (imgurMeme) {
+      const result = await postToInstagram(imgurMeme.mediaUrl, imgurMeme.title, 'Imgur', tags);
+      if (result) {
+        const newPost = new ImgurPost({ postId: imgurMeme.postId, title: imgurMeme.title, mediaUrl: imgurMeme.mediaUrl, addedAt: new Date() });
+        await newPost.save();
+      }
+      results.push(result);
+    }
+
+    return results; // Return the results array
+  } catch (error) {
+    console.error('Error in cron job:', error.message);
+    throw new Error(error.message); // Throw the error to be handled by the caller
+  }
+}
+
+// Export the function for external use
+exports.Xcronjob = Xcronjob;
 
 app.get('/test-fetch-post', async (req, res) => {
   console.log('Manual test: Fetching and posting top Reddit, Facebook, and Imgur memes...');
@@ -317,46 +380,48 @@ app.get('/test-fetch-post', async (req, res) => {
 });
 
 
-// Cron job for daily post at 7 AM IST
-cron.schedule('30 1 * * *', async () => {
-  console.log('Cron job triggered: Fetching and posting top Reddit, Facebook, and Imgur memes...');
 
-  try {
-    const redditPosts = await fetchRedditPosts();
-    const facebookPosts = await fetchFacebookPosts();
-    const imgurMeme = await fetchImgurMeme();
 
-    const tags = ['Reddit', 'Facebook', 'Imgur', 'Trending'];
+// // Cron job for daily post at 7 AM IST
+// cron.schedule('30 1 * * *', async () => {
+//   console.log('Cron job triggered: Fetching and posting top Reddit, Facebook, and Imgur memes...');
 
-    // Post Reddit content to Instagram
-    for (const post of redditPosts) {
-      const result = await postToInstagram(post.mediaUrl, post.title, `r/${post.subreddit}`, tags);
-      if (result) {
-        await saveRedditPost(post);
-      }
-    }
+//   try {
+//     const redditPosts = await fetchRedditPosts();
+//     const facebookPosts = await fetchFacebookPosts();
+//     const imgurMeme = await fetchImgurMeme();
 
-    // Post Facebook content to Instagram
-    for (const post of facebookPosts) {
-      const result = await postToInstagram(post.mediaUrl, post.message || 'Check out this post!', 'Facebook', tags);
-      if (result) {
-        await saveFacebookPost(post);
-      }
-    }
+//     const tags = ['Reddit', 'Facebook', 'Imgur', 'Trending'];
 
-    // Post Imgur meme to Instagram
-    if (imgurMeme) {
-      const result = await postToInstagram(imgurMeme.mediaUrl, imgurMeme.title, 'Imgur', tags);
-      if (result) {
-        await saveImgurPost(imgurMeme);
-      }
-    }
-  } catch (error) {
-    console.log('Error in cron job:', error.message);
-  }
-}, {
-  timezone: 'Asia/Kolkata', // Set timezone to IST
-});
+//     // Post Reddit content to Instagram
+//     for (const post of redditPosts) {
+//       const result = await postToInstagram(post.mediaUrl, post.title, `r/${post.subreddit}`, tags);
+//       if (result) {
+//         await saveRedditPost(post);
+//       }
+//     }
+
+//     // Post Facebook content to Instagram
+//     for (const post of facebookPosts) {
+//       const result = await postToInstagram(post.mediaUrl, post.message || 'Check out this post!', 'Facebook', tags);
+//       if (result) {
+//         await saveFacebookPost(post);
+//       }
+//     }
+
+//     // Post Imgur meme to Instagram
+//     if (imgurMeme) {
+//       const result = await postToInstagram(imgurMeme.mediaUrl, imgurMeme.title, 'Imgur', tags);
+//       if (result) {
+//         await saveImgurPost(imgurMeme);
+//       }
+//     }
+//   } catch (error) {
+//     console.log('Error in cron job:', error.message);
+//   }
+// }, {
+//   timezone: 'Asia/Kolkata', // Set timezone to IST
+// });
 
 // Save Reddit post
 async function saveRedditPost(post) {
