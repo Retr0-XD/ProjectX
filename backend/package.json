@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
     "build": "npm run build:app && npm run build:lambda",
-    "build:app": "react-scripts build", 
-    "build:lambda": "netlify-lambda build functions" 
+    "build:app": "react-scripts build",
+    "build:lambda": "netlify-lambda build functions"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +22,7 @@
     "morgan": "^1.10.0",
     "node-cron": "^3.0.3",
     "nodemon": "^3.1.4",
+    "serverless-http": "^3.2.0",
     "sharp": "^0.33.5",
     "snoowrap": "^1.23.0",
     "twitter": "^1.7.1",
@@ -29,5 +30,8 @@
     "twitter-v2": "^1.1.0",
     "user-agents": "^1.1.316",
     "video-url-link": "^0.1.5"
+  },
+  "devDependencies": {
+    "netlify-lambda": "^2.0.16"
   }
 }
