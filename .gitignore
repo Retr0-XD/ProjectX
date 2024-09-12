@@ -1,0 +1,34 @@
+# Node.js specific
+node_modules/
+npm-debug.log*
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Editor and IDE specific
+*.swp
+*.DS_Store
+*.cache
+*.log
+*.sync
+*.tmp
+*.undo
+*.bak
+*.old
+*.swp
+*.tmp
+
+# Test files
+test/coverage/
+test/reports/
+
+# Temporary files
+*.tmp
+*.log
+*.pid
+
+# Secrets and sensitive data
+secrets.json
+config.json
+.env
