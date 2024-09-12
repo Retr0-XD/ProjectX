@@ -8,7 +8,9 @@ const app = express();
 app.use(express.json());
 const fs = require('fs');
 const path = require('path');
+const serverless = require('serverless-http')
 
+const router = express.Router();
 
 const redditPostSchema = new mongoose.Schema({
   subreddit: String,
@@ -330,7 +332,7 @@ async function Xcronjob() {
 
 exports.Xcronjob = Xcronjob;
 
-app.get('/test-fetch-post', async (req, res) => {
+router.get('/test-fetch-post', async (req, res) => {
   console.log('Manual test: Fetching and posting top Reddit, Facebook, and Imgur memes...');
 
   try {
@@ -498,7 +500,7 @@ function logError(message) {
 }
 
 
-app.get('/logs', async (req, res) => {
+router.get('/logs', async (req, res) => {
   try {
     // Read the logs.json file and send it to the frontend
     const logFilePath = path.join(__dirname, 'logs.json');
@@ -517,7 +519,7 @@ app.get('/logs', async (req, res) => {
 });
 
 
-app.get('/posts', async (req, res) => {
+router.get('/posts', async (req, res) => {
   try {
     const redditPosts = await RedditPost.find().sort({ addedAt: -1 });
     const facebookPosts = await FacebookPost.find().sort({ addedAt: -1 });
@@ -532,7 +534,7 @@ app.get('/posts', async (req, res) => {
 });
 
 
-app.get('/rejected-posts', async (req, res) => {
+router.get('/rejected-posts', async (req, res) => {
   try {
     const rejectedPosts = await RejectedPost.find().sort({ addedAt: -1 });
     res.json(rejectedPosts);
@@ -569,3 +571,8 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
+app.use('/.netlify/functions/cronjob', router);
+
+module.exports.handler = serverless(app)
