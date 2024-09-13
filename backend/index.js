@@ -340,7 +340,7 @@ router.get('/test-fetch-post', async (req, res) => {
     const facebookPosts = await fetchFacebookPosts();
     const imgurMeme = await fetchImgurMeme();
 
-    const tags = ['Reddit', 'Facebook', 'Imgur', 'Trending'];
+    const tags = ['#dankmemes','#memes','#meme','#memesdaily','#funnymemes','#funny',' #offensivememes','#instagram',' #funnyshit'];
     const results = [];
 
 

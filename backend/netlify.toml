@@ -5,8 +5,16 @@
 [schedule.functions.fetch-and-post]
   cron = "30 1 * * *"  
 
+
 [functions]
   external_node_modules = ["mongoose", "snoowrap", "axios"]  
+  directory="functions"
+
+  [[scheduled]]
+  # The path to your function
+  path = "/functions/cronjob.js"
+  # Define the cron schedule for 8:00 PM UTC every day
+  cron = "0 20 * * *"
 
 [[redirects]]
   from = "/*"
