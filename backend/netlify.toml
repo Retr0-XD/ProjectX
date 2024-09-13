@@ -7,14 +7,14 @@
 
 
 [functions]
-  external_node_modules = ["mongoose", "snoowrap", "axios"]  
-  directory="functions"
+  directory = "functions"  # Or wherever your functions are stored
 
-  [[scheduled]]
-  # The path to your function
-  path = "/functions/cronjob.js"
-  # Define the cron schedule for 8:00 PM UTC every day
+[[scheduled]]
+  path = "/.netlify/functions/cronjob"
   cron = "0 20 * * *"
+
+[functions]
+  external_node_modules = ["mongoose", "snoowrap", "axios"]  
 
 [[redirects]]
   from = "/*"
