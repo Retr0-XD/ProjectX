@@ -8,7 +8,7 @@
 
 [[scheduled]]
   path = "/.netlify/functions/cronjob"
-  cron = "0 20 * * *"
+  cron = "30 1 * * *"
 
 [functions]
   external_node_modules = ["mongoose", "snoowrap", "axios"]  
