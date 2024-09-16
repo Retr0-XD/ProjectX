@@ -12,11 +12,7 @@
         "dest": "/backend/index.js"
       }
       
-    ],
-    "crons": [{
-      "path": "/functions/cronjob",
-      "schedule": "30 13 * * *"
-    }
-  ]
+    ]
+  
   }
   
