@@ -1,17 +1,23 @@
 {
-  "functions": {
-    "api/*.js": {
-      "includeFiles": [
-        "node_modules/mongoose/**",
-        "node_modules/snoowrap/**",
-        "node_modules/axios/**"
-      ]
-    }
-  },
-  "rewrites": [
+    "version": 2,
+    "builds": [
+      {
+        "src": "/backend/index.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "/backend/index.js"
+      }
+      
+    ],
+    "crons":[
     {
-      "source": "/(.*)",
-      "destination": "/api/server.js"
+      "path": "/functions/cronjob",
+      "schedule": "30 13 * * *"
     }
-  ]
-}
+    ]
+  }
+  
