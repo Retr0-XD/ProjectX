@@ -1,17 +1,17 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "/backend/index.js",
-        "use": "@vercel/node"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "/backend/index.js"
-      }
-      
-    ]
-  }
-  
+  "functions": {
+    "api/*.js": {
+      "includeFiles": [
+        "node_modules/mongoose/**",
+        "node_modules/snoowrap/**",
+        "node_modules/axios/**"
+      ]
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/server.js"
+    }
+  ]
+}
