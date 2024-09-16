@@ -13,15 +13,6 @@
       }
       
     ],
-    "functions": {
-    "api/*.js": {
-      "includeFiles": [
-        "node_modules/mongoose/**",
-        "node_modules/snoowrap/**",
-        "node_modules/axios/**"
-      ]
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
