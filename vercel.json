@@ -13,10 +13,10 @@
       }
       
     ],
-    "crons": {
+    "crons": [{
       "path": "/functions/cronjob",
       "schedule": "30 13 * * *"
     }
-    
+  ]
   }
   
