@@ -13,12 +13,17 @@
       }
       
     ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api/cronjob.js"
-    }
-  ]
+    "functions": {
+      "api/*.js": {
+        "includeFiles": "node_modules/**"
+      }
+    },
+    "rewrites": [
+      {
+        "source": "/(.*)",
+        "destination": "/api/cronjob.js" 
+      }
+    ]
   
   }
   
