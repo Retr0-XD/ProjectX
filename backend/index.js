@@ -573,6 +573,6 @@ app.listen(PORT, () => {
 });
 
 
-app.use('/.netlify/functions/cronjob', router);
+app.use('api/cronjob', router);
 
 module.exports.handler = serverless(app)
